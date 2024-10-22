@@ -1,59 +1,58 @@
-html, body {
-  padding: 0;
-  margin: 0;
-}
+var pageCounter = 1;
+var animalContainer = document.getElementById("animal-info");
+var btn = document.getElementById("btn");
 
-.hide-me {
-  visibility: hidden;
-  opacity: 0;
-  transform: scale(.75);
-}
+btn.addEventListener("click", function() {
+  var ourRequest = new XMLHttpRequest();
+  ourRequest.open('GET', 'https://learnwebcode.github.io/json-example/animals-' + pageCounter + '.json');
+  ourRequest.onload = function() {
+    if (ourRequest.status >= 200 && ourRequest.status < 400) {
+      var ourData = JSON.parse(ourRequest.responseText);
+      renderHTML(ourData);
+    } else {
+      console.log("We connected to the server, but it returned an error.");
+    }
+    
+  };
 
-h1 {
-  margin-top: 0;
-  font-size: 2.4em;
-  font-weight: normal;
-  display: inline-block;
-}
+  ourRequest.onerror = function() {
+    console.log("Connection error");
+  };
 
-body {
-  font-family: Helvetica, sans-serif;
-  padding: 50px 10%;
-}
+  ourRequest.send();
+  pageCounter++;
+  if (pageCounter > 3) {
+    btn.classList.add("hide-me");
+  }
+});
 
-button {
-  background-color: #046380;
-  color: #FFF;
-  border: none;
-  padding: 10px 15px;
-  font-size: 15px;
-  border-radius: 4px;
-  cursor: pointer;
-  outline: none;
-  box-shadow: 2px 2px 0 #034154;
-  margin-bottom: 10px;
-  margin-left: 18px;
-  transition: opacity .4s ease-out, transform .4s ease-out, visibility .4s ease-out;
-  position: relative;
-  top: -10px;
-}
+function renderHTML(data) {
+  var htmlString = "";
 
-button:hover {
-  background-color: #034F66;
-}
+  for (i = 0; i < data.length; i++) {
+    htmlString += "<p>" + data[i].name + " is a " + data[i].species + " that likes to eat ";
+    
+    for (ii = 0; ii < data[i].foods.likes.length; ii++) {
+      if (ii == 0) {
+        htmlString += data[i].foods.likes[ii];
+      } else {
+        htmlString += " and " + data[i].foods.likes[ii];
+      }
+    }
 
-button:active {
-  background-color: #034154;
-  box-shadow: none;
-  position: relative;
-  top: -8px;
-  left: 2px;
-}
+    htmlString += ' and dislikes ';
 
-p {
-  padding: 4px 0 2px 8px;
-  line-height: 1.7;
-  border-bottom: 1px dotted #DDD;
-  list-style: none;
-  margin: 0;
+    for (ii = 0; ii < data[i].foods.dislikes.length; ii++) {
+      if (ii == 0) {
+        htmlString += data[i].foods.dislikes[ii];
+      } else {
+        htmlString += " and " + data[i].foods.dislikes[ii];
+      }
+    }
+
+    htmlString += '.</p>';
+
+  }
+
+  animalContainer.insertAdjacentHTML('beforeend', htmlString);
 }
